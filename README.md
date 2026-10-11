@@ -16,7 +16,48 @@ The delivery file is used to calculate aggregated player and innings statistics.
 
 The intended users are cricket followers who want to browse a decade of IPL results, compare teams and players, and narrow the analysis by season, team, opponent, or venue.
 
-## 2. Source datasets
+## 2. Local setup and use
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 20.19+ or 22.12+ (the versions supported by Vite 7)
+- npm (installed with Node.js)
+- Python 3 only when rebuilding the bundled dataset from the CSV files; the script uses the Python standard library and needs no additional packages.
+
+No environment variables, API keys, database, or external services are required.
+
+### Run the app locally
+
+From the project directory:
+
+```bash
+cd 22yards
+npm install
+npm run dev
+```
+
+Vite will print the local URL (normally `http://localhost:5173`). Open it in a browser. The development server listens on all network interfaces, so its terminal output may also include a network URL for testing on another device.
+
+### Create and preview a production build
+
+```bash
+npm run build
+npm run preview
+```
+
+`npm run build` type-checks the TypeScript source and writes the deployable static site to `dist/`. `npm run preview` serves that build locally; it is useful for validating the production output before deploying `dist/` to any static web host.
+
+### Rebuild the bundled data (optional)
+
+The website loads `public/data/cricket.json`, which is already included and sufficient for normal development. If either source CSV in `attached_assets/` changes, regenerate it with:
+
+```bash
+python3 scripts/cricket-data.py public/data/cricket.json
+```
+
+Restart the development server after rebuilding the file. The script validates delivery match IDs and applies the aggregation rules described below.
+
+## 3. Source datasets
 
 Both files were provided with the project and are retained as the data source:
 
@@ -29,7 +70,7 @@ The match file covers ten seasons, 2008 through 2017, and 35 venues. Important m
 
 Delivery records are rolled up before display. The current bundled dataset contains 9,550 batter-match summaries, 7,571 bowler-match summaries, and 1,270 team-innings summaries. The source files remain available to rebuild those summaries; raw ball-by-ball detail is not a dashboard feature.
 
-## 3. Data preparation and metric definitions
+## 4. Data preparation and metric definitions
 
 - Match, batting, bowling, and innings summaries are prepared from the two supplied CSVs and bundled as `public/data/cricket.json`.
 - Super-over deliveries are excluded from player and innings summaries.
@@ -42,7 +83,7 @@ Delivery records are rolled up before display. The current bundled dataset conta
 - The batting-first team is identified from the toss decision and toss winner, not inferred from the winning margin.
 - A batting-order win rate is **wins divided by decided appearances in that batting order**. The dashboard also displays the wins and decided-match count. No-results and ties without an awarded winner are excluded; matches with a recorded tie-break winner and D/L matches are included.
 
-## 4. Main dashboard features
+## 5. Main dashboard features
 
 ### Overview
 
@@ -69,7 +110,7 @@ Delivery records are rolled up before display. The current bundled dataset conta
 - Pie-chart series are accompanied by color-coded labels and values.
 - The match scorecard trail uses a sortable, paginated data grid rather than a stack of match cards.
 
-## 5. Product design and implementation
+## 6. Product design and implementation
 
 - **Visual direction:** editorial cricket record book; warm paper, forest green, and vermilion; DM Serif Display headings with DM Sans supporting text.
 - **Brand:** 22 Yards, with the user-provided tagline “A Game of Margin.”
@@ -78,7 +119,7 @@ Delivery records are rolled up before display. The current bundled dataset conta
 - **Runtime:** a bundled static data file is loaded by the browser. There is no runtime database or API requirement.
 - **Build artifact:** `downloads/crease-source.zip` contains an independent copy of the app and supplied inputs. The source archive retains its original project folder name; the displayed product brand is 22 Yards.
 
-## 6. Tournament-inference rule
+## 7. Tournament-inference rule
 
 The supplied match file does not provide an independently verified final label for each season. At the user's direction, the app treats the **latest match by date in each season** as the inferred final; match ID resolves a same-date tie. The winner recorded for that match is treated as champion.
 
@@ -86,7 +127,7 @@ Finals are identified from the **complete season schedule before** team, opponen
 
 On the supplied 2008–2017 data, this rule identifies Mumbai Indians as champions three times and Chennai Super Kings as appearing in the most inferred finals, six times.
 
-## 7. User-led design history
+## 8. User-led design history
 
 The work went through **four major user-led stages**: the initial brief plus three refinement rounds. This is a count of high-level product/design requests, not individual code edits.
 
@@ -97,7 +138,7 @@ The work went through **four major user-led stages**: the initial brief plus thr
 
 The fuller prompt history and a reusable handoff prompt are in [`requirements.md`](requirements.md).
 
-## 8. Known boundaries
+## 9. Known boundaries
 
 - The dataset is limited to the supplied 2008–2017 CSV records.
 - There is no CSV upload or refresh workflow.
